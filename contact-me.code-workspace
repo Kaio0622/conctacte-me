@@ -1,0 +1,75 @@
+{
+  "folders": [
+    {
+      "name": "Contact Me — Marketplace",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "node_modules": true
+    },
+    "search.exclude": {
+      "node_modules": true,
+      "uploads": true,
+      "data": true,
+      "package-lock.json": true
+    },
+    "files.associations": {
+      ".env": "properties",
+      ".env.example": "properties"
+    },
+    "editor.tabSize": 2,
+    "editor.rulers": [100],
+    "files.eol": "\n",
+    "files.trimTrailingWhitespace": true,
+    "javascript.preferences.quoteStyle": "single",
+    "emmet.includeLanguages": {
+      "javascript": "html"
+    },
+    "explorer.fileNesting.enabled": true,
+    "explorer.fileNesting.patterns": {
+      "package.json": "package-lock.json, .gitignore, .env, .env.example",
+      "README.md": "contact-me.code-workspace"
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "dbaeumer.vscode-eslint",
+      "esbenp.prettier-vscode",
+      "ritwickdey.liveserver"
+    ]
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Rodar o servidor",
+        "type": "node",
+        "request": "launch",
+        "program": "${workspaceFolder}/server.js",
+        "cwd": "${workspaceFolder}",
+        "console": "integratedTerminal",
+        "skipFiles": ["<node_internals>/**"]
+      },
+      {
+        "name": "Rodar o seed (recria os dados de demo)",
+        "type": "node",
+        "request": "launch",
+        "program": "${workspaceFolder}/scripts/seed.js",
+        "cwd": "${workspaceFolder}",
+        "console": "integratedTerminal",
+        "skipFiles": ["<node_internals>/**"]
+      },
+      {
+        "name": "Rodar o smoke test (precisa do servidor no ar)",
+        "type": "node",
+        "request": "launch",
+        "program": "${workspaceFolder}/scripts/smoke.js",
+        "cwd": "${workspaceFolder}",
+        "console": "integratedTerminal",
+        "skipFiles": ["<node_internals>/**"]
+      }
+    ]
+  }
+}

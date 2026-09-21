@@ -1,0 +1,25 @@
+{
+  "name": "contact-me-marketplace",
+  "version": "2.0.0",
+  "description": "Marketplace de serviços locais — conecta clientes a prestadores da própria região",
+  "main": "server.js",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "seed": "node scripts/seed.js",
+    "smoke": "node scripts/smoke.js",
+    "test": "node scripts/test.js",
+    "supabase:check": "node scripts/supabase.js check",
+    "supabase:import": "node scripts/supabase.js import",
+    "google:status": "node scripts/google-status.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "multer": "^1.4.5-lts.1"
+  }
+}

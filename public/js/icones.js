@@ -1,0 +1,42 @@
+// Ícones locais: traço único e cor herdada do tema, sem fontes ou requisições externas.
+const ICONES_UI = Object.freeze({
+  alerta: '<path d="m12 3 10 18H2L12 3Z"/><path d="M12 9v4m0 4h.01"/>',
+  proibido: '<circle cx="12" cy="12" r="9"/><path d="m6 6 12 12"/>',
+  escudo: '<path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6l8-3Z"/><path d="m8 12 3 3 5-6"/>',
+  check: '<circle cx="12" cy="12" r="9"/><path d="m7 12 3 3 7-7"/>',
+  fechar: '<path d="m6 6 12 12M6 18 18 6"/>',
+  busca: '<circle cx="10.5" cy="10.5" r="7.5"/><path d="m16 16 5 5"/>',
+  categorias: '<path d="M4 5h16M4 12h16M4 19h16"/><circle cx="8" cy="5" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="10" cy="19" r="2"/>',
+  mensagem: '<path d="M21 11a9 9 0 0 1-9 9 10 10 0 0 1-4-.9L3 21l1.8-5A9 9 0 1 1 21 11Z"/>',
+  inbox: '<path d="m3 13 3-9h12l3 9v7H3v-7Z"/><path d="M3 13h5l2 3h4l2-3h5"/>',
+  trabalho: '<rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V3h8v4M3 13h18m-9-2v4"/>',
+  cadeado: '<rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 5v2"/>',
+  estrela: '<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z"/>',
+  link: '<path d="m10 13 4-4m-6 6-1 1a4 4 0 0 1-6-6l4-4a4 4 0 0 1 6 0m2 3 1-1a4 4 0 0 1 6 6l-4 4a4 4 0 0 1-6 0" transform="translate(1 1)"/>',
+  relogio: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  pausa: '<rect x="5" y="4" width="4" height="16" rx="1"/><rect x="15" y="4" width="4" height="16" rx="1"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10h.01"/>',
+  chevron: '<path d="m6 9 6 6 6-6"/>',
+  camera: '<path d="M3 7h4l2-3h6l2 3h4v14H3V7Z"/><circle cx="12" cy="13" r="4"/>',
+  imagem: '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="1.5"/><path d="m3 17 5-5 4 4 4-6 5 7"/>',
+  eletrica: '<path d="m13 2-9 12h7l-1 8 10-13h-7l1-7Z"/>',
+  hidraulica: '<path d="M12 3S5 10 5 15a7 7 0 0 0 14 0c0-5-7-12-7-12Z"/><path d="M9 16a3 3 0 0 0 3 3"/>',
+  pintura: '<rect x="3" y="3" width="14" height="6" rx="2"/><path d="M17 6h4v7h-9v3"/><rect x="10" y="16" width="4" height="6" rx="1"/>',
+  limpeza: '<path d="m16 3-5 10m-5 1 6-2 7 7-14 2 1-7Zm3 1-1 5m5-4-1 4"/>',
+  reforma: '<rect x="3" y="4" width="18" height="16" rx="1"/><path d="M3 9h18M3 15h18M9 4v5m6 0v6m-6 0v5"/>',
+  marcenaria: '<path d="m4 4 5 1 2 4-6 4-3-4 2-5Zm1 9 2 8 3-3 3 1 2-3 3 1 3-4-10-4M5 7l2 2"/>',
+  jardinagem: '<path d="M20 3C6 2 2 9 7 15s15 2 13-12ZM4 21 16 8m-6 6v-4m0 4h4"/>',
+  'ar-condicionado': '<path d="M12 2v20M3.3 7l17.4 10M3.3 17 20.7 7M9 4l3 3 3-3M9 20l3-3 3 3M3 10l4-1-1-4m15 9-4 1 1 4M3 14l4 1-1 4m15-9-4-1 1-4"/>',
+  mudancas: '<path d="M3 5h11v12H3V5Zm11 5h4l3 4v3h-7"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/>',
+  informatica: '<rect x="3" y="3" width="18" height="13" rx="2"/><path d="M12 16v5m-5 0h10"/>',
+  beleza: '<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="m8 8 12 12M8 16 20 4"/>',
+  aulas: '<path d="M12 5C8 2 3 3 3 3v16s5-1 9 2c4-3 9-2 9-2V3s-5-1-9 2Zm0 0v16"/>',
+  fotografia: '<path d="M3 7h4l2-3h6l2 3h4v14H3V7Z"/><circle cx="12" cy="13" r="4"/>',
+  eventos: '<path d="M4 5v5a3 3 0 0 0 6 0V5M7 5v17m12-17c-4 1-5 6-4 9h4m0-9v17"/>',
+  pets: '<ellipse cx="5" cy="9" rx="2" ry="3"/><ellipse cx="10" cy="5" rx="2" ry="3"/><ellipse cx="16" cy="6" rx="2" ry="3"/><ellipse cx="20" cy="11" rx="2" ry="3"/><path d="M6 18c0-3 4-7 6-7s6 4 6 7-3 3-6 2c-3 1-6 1-6-2Z"/>',
+  costura: '<path d="M18 3c5 3-10 17-15 18C4 16 15 0 18 3Z"/><path d="m14 8 2-3"/>',
+});
+function iconeUI(nome) {
+  const desenho = Object.hasOwn(ICONES_UI, nome) ? ICONES_UI[nome] : ICONES_UI.info;
+  return `<svg class="icone-ui" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${desenho}</svg>`;
+}

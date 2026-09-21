@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Aprovação de prestadores · Contact Me</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;550;600;650;700&display=swap" rel="stylesheet" />
+  <script src="/js/tema.js"></script>
+  <link rel="stylesheet" href="/css/style.css" />
+  <style>
+    body { padding-bottom: 40px; }
+    .fila { display: grid; gap: 14px; }
+    .ficha {
+      background: var(--superficie); border: 1px solid var(--borda);
+      border-radius: var(--r-lg); overflow: hidden;
+    }
+    .ficha-topo {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 15px 16px; border-bottom: 1px solid var(--borda);
+    }
+    .ficha-corpo { padding: 15px 16px; display: grid; gap: 14px; }
+    .ficha-acoes {
+      display: flex; gap: 8px; padding: 13px 16px; flex-wrap: wrap;
+      background: var(--superficie-2); border-top: 1px solid var(--borda);
+    }
+    .ficha-fotos { display: flex; gap: 8px; overflow-x: auto; }
+    .ficha-fotos img {
+      width: 108px; height: 108px; object-fit: cover;
+      border-radius: var(--r-md); flex: none; background: var(--superficie-2);
+    }
+    .mensagem-whatsapp {
+      background: var(--fundo); border: 1px solid var(--borda);
+      border-radius: var(--r-md); padding: 12px 13px;
+      font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+      font-size: .74rem; line-height: 1.65; white-space: pre-wrap;
+      max-height: 190px; overflow-y: auto; color: var(--tinta-suave);
+    }
+    .resumo-fila { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 18px; }
+    details > summary { cursor: pointer; font-size: .82rem; color: var(--tinta-suave); font-weight: 600; padding: 4px 0; }
+  </style>
+</head>
+<body>
+
+  <header class="topo">
+    <div class="topo-interno">
+      <a class="marca" href="/">
+        <span class="marca-selo">C</span>
+        <span>Contact<span class="marca-fraca">Me</span></span>
+      </a>
+      <span class="etiqueta" style="margin-left:6px">Painel administrativo</span>
+      <div class="topo-fim" id="topoFim"></div>
+    </div>
+  </header>
+  <div class="tema-barra">
+    <label class="tema-rotulo" for="temaSeletor">Aparência</label>
+    <div class="tema-controle">
+      <span class="tema-icone" aria-hidden="true">
+        <svg class="tema-icone-sistema" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <svg class="tema-icone-claro" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.4 1.4m11.2 11.2L19 19M5 19l1.4-1.4M17.6 6.4 19 5"/></svg>
+        <svg class="tema-icone-escuro" viewBox="0 0 24 24"><path d="M20.8 13A9 9 0 0 1 11 3.2 9 9 0 1 0 20.8 13Z"/></svg>
+      </span>
+      <select class="selecao tema-selecao" id="temaSeletor" data-tema-seletor>
+        <option value="sistema">Padrão do dispositivo</option>
+        <option value="claro">Claro</option>
+        <option value="escuro">Escuro</option>
+      </select>
+      <svg class="tema-seta" aria-hidden="true" viewBox="0 0 24 24"><path d="m8 10 4 4 4-4"/></svg>
+    </div>
+  </div>
+
+  <main class="envolve" style="max-width:820px;padding-top:22px" id="tela"></main>
+
+  <div class="avisos" id="avisos" aria-live="polite"></div>
+  <div id="modais"></div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/ui.js"></script>
+  <script src="/js/icones.js"></script>
+  <script>
+  // ============================================================
+  //  Painel de aprovação manual
+  // ============================================================
+
+  const tela = document.getElementById('tela');
+  let filtroAtual = 'pendente';
+
+  function telaLogin(mensagem = '') {
+    document.getElementById('topoFim').innerHTML = '';
+    tela.innerHTML = `
+      <div style="max-width:400px;margin:24px auto">
+        <h1 style="margin-bottom:6px">Entrar como administrador</h1>
+        <p style="color:var(--tinta-suave);font-size:.9rem;margin-bottom:18px">
+          Só o administrador aprova cadastros e concede o selo de perfil verificado.
+        </p>
+        ${mensagem ? `<div class="faixa faixa-erro"><span class="faixa-icone">${iconeUI('alerta')}</span><div>${esc(mensagem)}</div></div>` : ''}
+        <form class="painel" id="formLogin">
+          <div class="campo">
+            <label class="campo-rotulo" for="aEmail">E-mail</label>
+            <input class="entrada" type="email" id="aEmail" required value="admin@contactme.local" />
+          </div>
+          <div class="campo">
+            <label class="campo-rotulo" for="aSenha">Senha</label>
+            <input class="entrada" type="password" id="aSenha" required autocomplete="current-password" />
+          </div>
+          <button class="btn btn-principal btn-cheio" type="submit">Entrar</button>
+        </form>
+      </div>`;
+
+    document.getElementById('formLogin').addEventListener('submit', async (evento) => {
+      evento.preventDefault();
+      const botao = evento.target.querySelector('button');
+      botao.disabled = true;
+      botao.textContent = 'Entrando...';
+      try {
+        const dados = await API.login(
+          document.getElementById('aEmail').value,
+          document.getElementById('aSenha').value
+        );
+        if (dados.usuario.papel !== 'admin') {
+          throw new Error('Esta conta não é de administrador.');
+        }
+        Sessao.gravar(dados.token, dados.usuario);
+        carregarFila();
+      } catch (erro) {
+        telaLogin(erro.message);
+      }
+    });
+  }
+
+  async function carregarFila() {
+    if (!Sessao.logado || Sessao.papel !== 'admin') return telaLogin();
+
+    document.getElementById('topoFim').innerHTML =
+      '<button class="btn btn-fantasma btn-pequeno" id="btnSair">Sair</button>';
+    document.getElementById('btnSair').addEventListener('click', () => {
+      Sessao.limpar();
+      telaLogin();
+    });
+
+    tela.innerHTML = '<div class="esqueleto" style="height:220px"></div>';
+
+    let dados;
+    try {
+      dados = await API.filaAprovacao(filtroAtual === 'todos' ? '' : filtroAtual);
+    } catch (erro) {
+      if (erro.status === 401 || erro.status === 403) return telaLogin('Sessão expirada. Entre de novo.');
+      tela.innerHTML = telaVazia({ icone: 'alerta', titulo: 'Erro ao carregar', texto: erro.message });
+      return;
+    }
+
+    const w = dados.whatsapp;
+    const avisoWhats = (() => {
+      if (!w.destino) {
+        return `<div class="faixa faixa-erro"><span class="faixa-icone">${iconeUI('alerta')}</span>
+          <div><strong>ADMIN_WHATSAPP não configurado</strong>
+          Nenhuma notificação está sendo enviada. Preencha <code>ADMIN_WHATSAPP</code> no arquivo <code>.env</code> e reinicie o servidor. A fila abaixo continua funcionando normalmente.</div></div>`;
+      }
+      if (w.provider === 'link') {
+        return `<div class="faixa faixa-info"><span class="faixa-icone">${iconeUI('link')}</span>
+          <div><strong>Modo link (sem envio automático)</strong>
+          As mensagens não são disparadas sozinhas — use o botão “Abrir no WhatsApp” em cada ficha para enviar para +${esc(w.destino)}.</div></div>`;
+      }
+      if (!w.configurado) {
+        return `<div class="faixa faixa-atencao"><span class="faixa-icone">${iconeUI('alerta')}</span>
+          <div><strong>${esc(w.provider)} sem credenciais</strong>
+          O destino <strong>+${esc(w.destino)}</strong> está definido, mas as chaves do provedor estão vazias no <code>.env</code>, então o envio automático falha. Use “Abrir no WhatsApp” enquanto isso.</div></div>`;
+      }
+      return `<div class="faixa faixa-sucesso"><span class="faixa-icone">${iconeUI('check')}</span>
+        <div><strong>Notificações ativas via ${esc(w.provider)}</strong>
+        Cada novo cadastro é enviado para +${esc(w.destino)}.</div></div>`;
+    })();
+
+    tela.innerHTML = `
+      <h1 style="margin-bottom:6px">Aprovação de prestadores</h1>
+      <p style="color:var(--tinta-suave);font-size:.9rem;margin-bottom:18px">
+        Um prestador só aparece nas buscas — e só recebe o selo de perfil verificado — depois de aprovado aqui.
+      </p>
+
+      ${avisoWhats}
+
+      <div class="resumo-fila">
+        ${[['pendente', 'Pendentes'], ['aprovado', 'Aprovados'], ['rejeitado', 'Rejeitados'], ['suspenso', 'Suspensos']]
+          .map(([chave, rotulo]) => `
+            <div class="confianca-item">
+              <span class="confianca-valor">${dados.resumo[chave]}</span>
+              <span class="confianca-rotulo">${rotulo}</span>
+            </div>`).join('')}
+      </div>
+
+      <div class="sub-abas" id="filtros">
+        ${[['pendente', 'Pendentes'], ['aprovado', 'Aprovados'], ['rejeitado', 'Rejeitados'], ['todos', 'Todos']]
+          .map(([chave, rotulo]) => `
+            <button data-filtro="${chave}" aria-pressed="${filtroAtual === chave}">${rotulo}</button>`).join('')}
+      </div>
+
+      <div class="fila" id="fila">
+        ${dados.prestadores.length
+          ? dados.prestadores.map(ficha).join('')
+          : telaVazia({
+              icone: 'check',
+              titulo: 'Nada na fila',
+              texto: filtroAtual === 'pendente'
+                ? 'Nenhum cadastro aguardando aprovação no momento.'
+                : 'Nenhum prestador com este status.',
+            })}
+      </div>`;
+
+    document.getElementById('filtros').addEventListener('click', (evento) => {
+      const botao = evento.target.closest('[data-filtro]');
+      if (!botao) return;
+      filtroAtual = botao.dataset.filtro;
+      carregarFila();
+    });
+
+    ligarAcoesDaFila();
+  }
+
+  function ficha(p) {
+    const contato = p.contato || {};
+    const notificacao = p.notificacao;
+
+    const statusNotificacao = {
+      enviado: ['faixa-sucesso', 'check', 'Notificação enviada'],
+      falhou: ['faixa-erro', 'alerta', 'Falha no envio'],
+      'link-gerado': ['faixa-info', 'link', 'Link gerado (envio manual)'],
+      'nao-configurado': ['faixa-atencao', 'alerta', 'WhatsApp não configurado'],
+      pendente: ['faixa-info', 'relogio', 'Aguardando envio'],
+    }[notificacao?.status] || ['faixa-info', 'info', 'Sem notificação'];
+
+    return `<article class="ficha" data-id="${p.id}">
+      <div class="ficha-topo">
+        <div class="avatar" style="width:46px;height:46px">${esc(iniciais(p.nome))}</div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <strong style="font-size:1rem">${esc(p.nome)}</strong>
+            ${seloStatus(p.status)}
+          </div>
+          <div style="color:var(--tinta-fraca);font-size:.82rem;margin-top:2px">
+            ${esc(p.categoriaNome)} · ${esc(p.areaAtendimento?.rotulo || '')} · raio de ${p.areaAtendimento?.raioKm} km
+          </div>
+        </div>
+        <span class="item-hora">${tempoRelativo(p.membroDesde)}</span>
+      </div>
+
+      <div class="ficha-corpo">
+        <div class="dados">
+          <div class="dado"><span class="dado-rotulo">E-mail</span><span class="dado-valor">${esc(contato.email || '—')}</span></div>
+          <div class="dado"><span class="dado-rotulo">Telefone</span>
+            <span class="dado-valor">${contato.whatsapp
+              ? `<a href="${esc(contato.whatsapp)}" target="_blank" rel="noopener">+${esc(contato.telefone)}</a>`
+              : '—'}</span></div>
+          <div class="dado"><span class="dado-rotulo">Preço médio</span><span class="dado-valor">${dinheiro(p.precoMedio)}</span></div>
+          <div class="dado"><span class="dado-rotulo">Fotos enviadas</span><span class="dado-valor">${p.fotos?.length || 0}</span></div>
+        </div>
+
+        ${p.fotos?.length
+          ? `<div class="ficha-fotos">${p.fotos.map((f) => `<img src="${esc(f)}" alt="Trabalho enviado" loading="lazy" />`).join('')}</div>`
+          : `<div class="faixa faixa-atencao" style="margin:0"><span class="faixa-icone">${iconeUI('camera')}</span><div>Cadastro sem nenhuma foto de trabalho.</div></div>`}
+
+        <div>
+          <div class="campo-rotulo">Descrição</div>
+          <p style="font-size:.88rem;color:var(--tinta-suave);white-space:pre-wrap">${esc(p.descricao)}</p>
+        </div>
+
+        <div class="faixa ${statusNotificacao[0]}" style="margin:0">
+          <span class="faixa-icone">${iconeUI(statusNotificacao[1])}</span>
+          <div>
+            <strong>${statusNotificacao[2]}${notificacao?.provider ? ` · ${esc(notificacao.provider)}` : ''}</strong>
+            ${notificacao?.detalhe ? esc(notificacao.detalhe) : ''}
+          </div>
+        </div>
+
+        ${notificacao ? `
+          <details>
+            <summary>Ver a mensagem que vai (ou foi) para o WhatsApp</summary>
+            <div class="mensagem-whatsapp" style="margin-top:8px">${esc(notificacao.texto || '')}</div>
+          </details>` : ''}
+      </div>
+
+      <div class="ficha-acoes">
+        ${p.status === 'pendente' ? `
+          <button class="btn btn-principal btn-pequeno" data-acao="aprovado">Aprovar e liberar o selo</button>
+          <button class="btn btn-perigo btn-pequeno" data-acao="rejeitado">Rejeitar</button>` : ''}
+        ${p.status === 'aprovado' ? `
+          <button class="btn btn-perigo btn-pequeno" data-acao="suspenso">Suspender perfil</button>` : ''}
+        ${['rejeitado', 'suspenso'].includes(p.status) ? `
+          <button class="btn btn-principal btn-pequeno" data-acao="aprovado">Aprovar mesmo assim</button>` : ''}
+        <button class="btn btn-contorno btn-pequeno" data-acao="whatsapp">Abrir no WhatsApp</button>
+        <button class="btn btn-fantasma btn-pequeno" data-acao="reenviar">Reenviar notificação</button>
+      </div>
+    </article>`;
+  }
+
+  function ligarAcoesDaFila() {
+    document.getElementById('fila').addEventListener('click', async (evento) => {
+      const botao = evento.target.closest('[data-acao]');
+      if (!botao) return;
+
+      const id = botao.closest('.ficha').dataset.id;
+      const acao = botao.dataset.acao;
+
+      if (acao === 'whatsapp') {
+        try {
+          const dados = await API.linkWhatsApp(id);
+          if (!dados.link) return avisarErro('ADMIN_WHATSAPP não está configurado no .env.');
+          window.open(dados.link, '_blank', 'noopener');
+        } catch (erro) { avisarErro(erro.message); }
+        return;
+      }
+
+      if (acao === 'reenviar') {
+        botao.disabled = true;
+        try {
+          const resposta = await API.reenviarNotificacao(id);
+          const n = resposta.notificacao;
+          if (n.status === 'enviado') avisarOk('Notificação reenviada com sucesso.');
+          else avisarErro(n.detalhe || `Envio não concluído (${n.status}).`);
+          carregarFila();
+        } catch (erro) {
+          avisarErro(erro.message);
+          botao.disabled = false;
+        }
+        return;
+      }
+
+      // Rejeitar e suspender exigem motivo — o prestador vê o texto.
+      if (acao === 'rejeitado' || acao === 'suspenso') {
+        return abrirModal({
+          titulo: acao === 'rejeitado' ? 'Rejeitar cadastro' : 'Suspender perfil',
+          descricao: 'O motivo aparece para o prestador na área dele. Seja específico.',
+          corpo: `
+            <form id="formMotivo">
+              <div class="campo">
+                <label class="campo-rotulo" for="motivo">Motivo</label>
+                <textarea class="area-texto" id="motivo" required minlength="5"
+                  placeholder="Ex: as fotos enviadas não são do trabalho do prestador."></textarea>
+              </div>
+              <button class="btn btn-perigo btn-cheio" type="submit">Confirmar</button>
+            </form>`,
+          aoMontar: (modal, fechar) => {
+            modal.querySelector('#formMotivo').addEventListener('submit', async (submissao) => {
+              submissao.preventDefault();
+              try {
+                const resposta = await API.decidir(id, acao, modal.querySelector('#motivo').value);
+                fechar();
+                avisarOk(resposta.mensagem);
+                carregarFila();
+              } catch (erro) { avisarErro(erro.message); }
+            });
+          },
+        });
+      }
+
+      botao.disabled = true;
+      try {
+        const resposta = await API.decidir(id, acao);
+        avisarOk(resposta.mensagem);
+        carregarFila();
+      } catch (erro) {
+        avisarErro(erro.message);
+        botao.disabled = false;
+      }
+    });
+  }
+
+  window.addEventListener('sessao-expirada', () => telaLogin('Sessão expirada. Entre de novo.'));
+
+  carregarFila();
+  </script>
+</body>
+</html>
